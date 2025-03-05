@@ -1,0 +1,44 @@
+@page "/fetchproducts"
+@using Shared
+@using Client.Services
+
+@inject ProductService ProductService
+
+<h3>Products List</h3>
+
+@if (errorMessage != null) {
+    <p class="text-danger">@errorMessage</p>
+}
+
+<ul>
+    @if (products != null) {
+        foreach (var product in products) {
+            <li>@product.Name</li>
+        }
+    }
+    else {
+        <li>Loading...</li>
+    }
+</ul>
+
+@code {
+    private Product[]? products;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            errorMessage = null;
+            products = await ProductService.GetProductsAsync();
+
+            if (products == null) {
+                errorMessage = "Failed to fetch product data.";
+            }
+        } // Copilot suggested to catch HttpRequestException, TaskCanceledException and Exception
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+            products = null;
+        }
+    }
+}
